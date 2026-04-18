@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTISAN · DA — Thủ công từ da thật</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-light:#E8C97A;--dark:#0E0B08;--dark2:#1A1510;--dark3:#231E17;
+  --brown:#3D2B1F;--cream:#F5EDD9;--cream2:#EDE0C4;--text-light:#D4C4A8;--text-muted:#8A7A64;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Raleway',sans-serif;background:var(--dark);color:var(--cream);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 4rem;background:linear-gradient(to bottom,rgba(14,11,8,.97),transparent)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;letter-spacing:.15em;color:var(--gold);text-decoration:none}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream2);text-decoration:none;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--gold)}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(135deg,#0E0B08 0%,#1A1007 40%,#231610 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:8rem 4rem 4rem}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(201,168,76,.08) 0%,transparent 60%)}
+.hero-content{position:relative;z-index:1;max-width:700px;text-align:center}
+.hero-eyebrow{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:1rem}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:40px;height:.5px;background:var(--gold);opacity:.6}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,7vw,5.5rem);font-weight:300;line-height:1.05;color:var(--cream);margin-bottom:.3rem}
+.hero-title em{font-style:italic;color:var(--gold-light)}
+.hero-sub{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,2.5vw,1.4rem);font-style:italic;color:var(--text-muted);margin-bottom:2.5rem}
+.hero-desc{font-size:.85rem;letter-spacing:.05em;line-height:1.9;color:var(--text-light);max-width:420px;margin:0 auto 3rem}
+.btn-primary{display:inline-block;padding:1rem 3rem;border:1px solid var(--gold);color:var(--dark);background:var(--gold);font-family:'Raleway',sans-serif;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:600;text-decoration:none;cursor:pointer;transition:all .3s}
+.btn-primary:hover{background:var(--gold-light);border-color:var(--gold-light)}
+.btn-outline{display:inline-block;padding:.9rem 2.5rem;border:1px solid rgba(201,168,76,.4);color:var(--gold);background:transparent;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:600;text-decoration:none;cursor:pointer;transition:all .3s;margin-left:1rem}
+.btn-outline:hover{border-color:var(--gold);background:rgba(201,168,76,.05)}
+
+/* CATALOG */
+.catalog{background:var(--dark2);padding:6rem 4rem}
+.catalog-header{max-width:1200px;margin:0 auto 2.5rem;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1.5rem}
+.section-label{font-size:.65rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.8rem}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;color:var(--cream);line-height:1.1}
+.section-title em{font-style:italic;color:var(--gold-light)}
+
+/* FILTER */
+.filter-bar{display:flex;gap:.6rem;flex-wrap:wrap}
+.filter-btn{padding:.5rem 1.3rem;border:1px solid rgba(201,168,76,.25);background:transparent;color:var(--text-muted);font-family:'Raleway',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;cursor:pointer;transition:all .25s}
+.filter-btn:hover{border-color:rgba(201,168,76,.5);color:var(--cream2)}
+.filter-btn.active{border-color:var(--gold);background:rgba(201,168,76,.1);color:var(--gold)}
+
+/* STATUS */
+.sanity-status{max-width:1200px;margin:0 auto 2rem;display:flex;align-items:center;gap:.8rem;font-size:.7rem;letter-spacing:.1em;color:var(--text-muted)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);flex-shrink:0}
+.status-dot.connected{background:#4caf7d}
+.status-dot.loading{background:var(--gold);animation:pulse 1s infinite}
+.status-dot.error{background:#e24b4a}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* PRODUCT GRID */
+.product-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(201,168,76,.06)}
+.prod-card{background:var(--dark3);cursor:pointer;position:relative;overflow:hidden;transition:background .3s}
+.prod-card:hover{background:#201a10}
+.prod-img{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1007,#2a1a0d)}
+.prod-img svg{transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
+.prod-card:hover .prod-img svg{transform:scale(1.08) translateY(-4px)}
+.prod-hover-overlay{position:absolute;inset:0;background:rgba(10,8,5,.6);opacity:0;transition:opacity .3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.prod-card:hover .prod-hover-overlay{opacity:1}
+.quick-view-btn{padding:.6rem 1.6rem;border:1px solid var(--gold);color:var(--gold);background:rgba(14,11,8,.8);font-family:'Raleway',sans-serif;font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:all .2s}
+.quick-view-btn:hover{background:var(--gold);color:var(--dark)}
+.prod-img img.sanity-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.prod-img img.sanity-img.loaded{opacity:1}
+.prod-body{padding:1.1rem 1.2rem 1.4rem}
+.prod-cat-tag{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem}
+.prod-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:400;color:var(--cream);margin-bottom:.3rem}
+.prod-desc-short{font-size:.72rem;line-height:1.7;color:var(--text-muted);margin-bottom:.8rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prod-footer{display:flex;justify-content:space-between;align-items:center}
+.prod-price{font-size:.85rem;color:var(--gold-light);font-weight:600;letter-spacing:.05em}
+.prod-wishlist{width:28px;height:28px;border:1px solid rgba(201,168,76,.25);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:all .2s}
+.prod-wishlist:hover{border-color:var(--gold);color:var(--gold)}
+.badge-new{position:absolute;top:.8rem;left:.8rem;z-index:2;background:var(--gold);color:var(--dark);font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;padding:.25rem .6rem}
+.badge-custom{position:absolute;top:.8rem;right:.8rem;z-index:2;border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:.2rem .55rem;background:rgba(14,11,8,.8)}
+.empty-state{grid-column:1/-1;padding:4rem;text-align:center;font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;color:var(--text-muted);display:none}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;z-index:999;background:rgba(6,4,2,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .35s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:var(--dark2);border:1px solid rgba(201,168,76,.18);max-width:900px;width:100%;max-height:90vh;overflow-y:auto;position:relative;transform:translateY(28px) scale(.97);transition:transform .38s cubic-bezier(.22,.61,.36,1);display:grid;grid-template-columns:1fr 1fr}
+.modal-backdrop.open .modal{transform:translateY(0) scale(1)}
+.modal-img-panel{background:linear-gradient(145deg,#1a1007,#2d1d0d);display:flex;align-items:center;justify-content:center;position:relative;min-height:460px;overflow:hidden}
+.modal-img-panel svg{transition:transform .5s}
+.modal-img-panel:hover svg{transform:scale(1.04) rotate(1deg)}
+.modal-img-panel img.sanity-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.modal-img-panel img.sanity-img.loaded{opacity:1}
+.modal-thumbs{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem}
+.modal-thumb{width:32px;height:32px;border:1px solid rgba(201,168,76,.2);background:rgba(14,11,8,.7);cursor:pointer;transition:border-color .2s;display:flex;align-items:center;justify-content:center}
+.modal-thumb.active,.modal-thumb:hover{border-color:var(--gold)}
+.modal-thumb-dot{width:5px;height:5px;background:rgba(201,168,76,.4);transform:rotate(45deg)}
+.modal-thumb.active .modal-thumb-dot{background:var(--gold)}
+.modal-info{padding:2.5rem 2.2rem;display:flex;flex-direction:column;gap:1.1rem;overflow-y:auto}
+.modal-close{position:absolute;top:1rem;right:1rem;width:36px;height:36px;border:1px solid rgba(201,168,76,.25);background:transparent;color:var(--text-muted);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10;font-family:sans-serif;line-height:1}
+.modal-close:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.08)}
+.modal-eyebrow{display:flex;align-items:center;gap:.8rem}
+.modal-cat{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.modal-badge-new{background:var(--gold);color:var(--dark);font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;padding:.2rem .55rem}
+.modal-badge-custom{border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:.15rem .5rem}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--cream);line-height:1.1}
+.modal-title em{font-style:italic;color:var(--gold-light)}
+.modal-price-block{padding:1rem 1.2rem;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.12);display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
+.modal-price-main{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;color:var(--gold-light)}
+.modal-price-from{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);align-self:center}
+.modal-price-note{font-size:.68rem;color:var(--text-muted);letter-spacing:.05em;width:100%;margin-top:-.4rem}
+.modal-divider{height:1px;background:rgba(201,168,76,.1)}
+.modal-desc{font-size:.82rem;line-height:1.9;color:var(--text-light)}
+.modal-specs{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .8rem}
+.spec-row{display:flex;flex-direction:column;gap:.15rem}
+.spec-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted)}
+.spec-val{font-size:.78rem;color:var(--cream2);font-weight:500}
+.modal-colors-label{font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem}
+.modal-colors{display:flex;gap:.6rem;flex-wrap:wrap}
+.color-swatch{width:26px;height:26px;cursor:pointer;border:2px solid transparent;transition:border-color .2s;position:relative}
+.color-swatch:hover,.color-swatch.active{border-color:var(--gold)}
+.color-swatch::after{content:attr(data-name);position:absolute;bottom:-1.4rem;left:50%;transform:translateX(-50%);font-size:.55rem;white-space:nowrap;color:var(--text-muted);opacity:0;transition:opacity .2s}
+.color-swatch:hover::after{opacity:1}
+.modal-ctas{display:flex;flex-direction:column;gap:.7rem;margin-top:.3rem}
+.modal-btn-order{width:100%;padding:.95rem;background:var(--gold);color:var(--dark);border:none;font-family:'Raleway',sans-serif;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background .2s}
+.modal-btn-order:hover{background:var(--gold-light)}
+.modal-btn-custom{width:100%;padding:.85rem;background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,.4);font-family:'Raleway',sans-serif;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:all .2s}
+.modal-btn-custom:hover{border-color:var(--gold);background:rgba(201,168,76,.06)}
+.modal-features{display:flex;gap:1.2rem;flex-wrap:wrap;padding:.8rem 0;border-top:1px solid rgba(201,168,76,.08);border-bottom:1px solid rgba(201,168,76,.08)}
+.feat-item{display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:var(--text-muted);letter-spacing:.05em}
+.feat-icon{width:14px;height:14px;border:1px solid rgba(201,168,76,.3);transform:rotate(45deg);flex-shrink:0}
+.modal::-webkit-scrollbar,.modal-info::-webkit-scrollbar{width:3px}
+.modal::-webkit-scrollbar-track,.modal-info::-webkit-scrollbar-track{background:transparent}
+.modal::-webkit-scrollbar-thumb,.modal-info::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2)}
+
+/* PROCESS */
+.process{background:var(--dark3);padding:6rem 4rem}
+.process-inner{max-width:1200px;margin:0 auto}
+.process-header{text-align:center;margin-bottom:4rem}
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.process-steps::before{content:'';position:absolute;top:2.2rem;left:12%;right:12%;height:.5px;background:linear-gradient(to right,transparent,var(--gold),var(--gold),transparent);opacity:.2}
+.process-step{padding:0 1.5rem;text-align:center}
+.step-num{width:4.5rem;height:4.5rem;border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--gold);position:relative;z-index:1;background:var(--dark3);transition:all .3s}
+.process-step:hover .step-num{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;color:var(--cream);margin-bottom:.7rem}
+.step-desc{font-size:.78rem;line-height:1.8;color:var(--text-muted)}
+
+/* TESTIMONIAL */
+.testimonial{background:var(--dark);padding:7rem 4rem;text-align:center}
+.testimonial-inner{max-width:700px;margin:0 auto}
+.quote-mark{font-family:'Cormorant Garamond',serif;font-size:6rem;line-height:.5;color:var(--gold);opacity:.3;margin-bottom:1rem}
+.quote-text{font-family:'Cormorant Garamond',serif;font-size:clamp(1.3rem,2.5vw,1.8rem);font-style:italic;font-weight:300;color:var(--cream2);line-height:1.6;margin-bottom:2rem}
+.quote-author{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--text-muted)}
+.quote-author span{color:var(--gold)}
+.quote-dots{display:flex;justify-content:center;gap:.5rem;margin-top:2.5rem}
+.qdot{width:5px;height:5px;background:rgba(201,168,76,.3);transform:rotate(45deg);cursor:pointer;transition:background .2s}
+.qdot.active{background:var(--gold)}
+
+/* CTA */
+.cta{background:var(--dark2);padding:8rem 4rem;text-align:center;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 50% 50%,rgba(201,168,76,.05) 0%,transparent 60%)}
+.cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
+.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:300;color:var(--cream);margin-bottom:1rem;line-height:1.1}
+.cta-title em{font-style:italic;color:var(--gold-light)}
+.cta-sub{font-size:.82rem;line-height:1.9;color:var(--text-muted);margin-bottom:2.5rem;letter-spacing:.03em}
+
+footer{background:var(--dark);border-top:1px solid rgba(201,168,76,.08);padding:3rem 4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--gold);letter-spacing:.15em}
+.footer-copy{font-size:.7rem;color:var(--text-muted);letter-spacing:.08em}
+.footer-links{display:flex;gap:2rem}
+.footer-links a{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--gold)}
+
+@media(max-width:860px){
+  nav{padding:1.2rem 2rem}
+  .nav-links{gap:1.2rem}
+  .catalog,.process{padding:4rem 1.5rem}
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .process-steps{grid-template-columns:1fr 1fr;gap:2rem}
+  .process-steps::before{display:none}
+  .catalog-header{flex-direction:column;align-items:flex-start}
+  footer{flex-direction:column;text-align:center}
+  .hero{padding:7rem 2rem 4rem}
+  .modal{grid-template-columns:1fr}
+  .modal-img-panel{min-height:280px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">ARTISAN · DA</a>
+  <ul class="nav-links">
+    <li><a href="#">Trang chủ</a></li>
+    <li><a href="#catalog">Sản phẩm</a></li>
+    <li><a href="#process">Quy trình</a></li>
+    <li><a href="https://zalo.me/0777500265" target="_blank">Liên hệ qua Zalo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Thủ công tinh xảo từ 2019</div>
+    <h1 class="hero-title">Nghệ thuật<br><em>từ da thật</em></h1>
+    <p class="hero-sub">Mỗi đường khâu là một chữ ký</p>
+    <p class="hero-desc">Sản phẩm da thủ công độc bản — ví, túi xách, ốp điện thoại, ốp camera và hộp AirPods. Mỗi chiếc là một tác phẩm riêng biệt.</p>
+    <div>
+      <a href="#catalog" class="btn-primary">Xem bộ sưu tập</a>
+      <a href="https://zalo.me/0777500265" target="_blank"   class="btn-outline">Đặt hàng riêng</a>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="catalog" id="catalog">
+  <div class="catalog-header">
+    <div>
+      <div class="section-label">Bộ sưu tập</div>
+      <h2 class="section-title">Tất cả sản phẩm <em>thủ công</em></h2>
+    </div>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">Tất cả</button>
+      <button class="filter-btn" data-filter="vi">Ví da</button>
+      <button class="filter-btn" data-filter="tui">Túi xách</button>
+      <button class="filter-btn" data-filter="op-lung">Ốp lưng</button>
+      <button class="filter-btn" data-filter="op-camera">Ốp camera</button>
+      <button class="filter-btn" data-filter="airpods">Hộp AirPods</button>
+      <button class="filter-btn" data-filter="day-lung">Dây lưng</button>
+      <button class="filter-btn" data-filter="phu-kien">Phụ kiện</button>
+    </div>
+  </div>
+  <div class="sanity-status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Đang hiển thị dữ liệu mẫu — chưa kết nối Sanity</span>
+  </div>
+  <div class="product-grid" id="productGrid">
+    <div class="empty-state" id="emptyState">Không có sản phẩm trong danh mục này.</div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process" id="process">
+  <div class="process-inner">
+    <div class="process-header">
+      <div class="section-label">Quy trình</div>
+      <h2 class="section-title">Từ nguyên liệu đến <em>tuyệt tác</em></h2>
+    </div>
+    <div class="process-steps">
+      <div class="process-step"><div class="step-num">01</div><div class="step-title">Chọn da</div><p class="step-desc">Da bò  full-grain, chọn lọc về độ dày, màu và vân da tự nhiên.</p></div>
+      <div class="process-step"><div class="step-num">02</div><div class="step-title">Thiết kế & cắt</div><p class="step-desc">Mỗi mẫu vẽ tay, phiên bản riêng theo yêu cầu. Cắt chính xác từng mm.</p></div>
+      <div class="process-step"><div class="step-num">03</div><div class="step-title">Khâu tay</div><p class="step-desc">Saddle stitch truyền thống — bền gấp đôi máy khâu, đẹp theo năm tháng.</p></div>
+      <div class="process-step"><div class="step-num">04</div><div class="step-title">Hoàn thiện</div><p class="step-desc">Đánh cạnh, burnish và dưỡng ẩm tự nhiên. Đóng gói thủ công tỉ mỉ.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial">
+  <div class="testimonial-inner">
+    <div class="quote-mark">"</div>
+    <p class="quote-text" id="quoteText">Chiếc ví tôi nhận không chỉ là sản phẩm — đó là tác phẩm. Đường khâu hoàn hảo, da thơm, càng dùng càng đẹp.</p>
+    <div class="quote-author">— <span id="quoteAuthor">Nguyễn Minh Khoa</span>, TP. Hồ Chí Minh</div>
+    <div class="quote-dots">
+      <div class="qdot active" onclick="setQuote(0)"></div>
+      <div class="qdot" onclick="setQuote(1)"></div>
+      <div class="qdot" onclick="setQuote(2)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="cta-inner">
+    <div class="section-label" style="text-align:center">Đặt hàng</div>
+    <h2 class="cta-title">Tạo ra vật phẩm<br><em>chỉ dành cho bạn</em></h2>
+    <p class="cta-sub">Tùy chỉnh màu da, chỉ khâu, khắc tên hoặc initials. Liên hệ để được tư vấn miễn phí.</p>
+    <a href="#" class="btn-primary">Đặt hàng thủ công</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">ARTISAN · DA</div>
+  <div class="footer-copy">© 2025 · Thủ công từ trái tim</div>
+  <div class="footer-links">
+    <a href="#">Instagram</a><a href="#">Facebook</a><a href="#">Shopee</a><a href="#">Liên hệ</a>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose" onclick="closeModal()">✕</button>
+    <div class="modal-img-panel" id="modalImgPanel">
+      <div id="modalSvg"></div>
+      <img class="sanity-img" id="modalImg" src="" alt="" onload="this.classList.add('loaded')" style="display:none">
+      <div class="modal-thumbs" id="modalThumbs"></div>
+    </div>
+    <div class="modal-info" id="modalInfo">
+      <div class="modal-eyebrow">
+        <span class="modal-cat" id="mCat"></span>
+        <span class="modal-badge-new" id="mBadgeNew" style="display:none">Mới</span>
+        <span class="modal-badge-custom" id="mBadgeCustom" style="display:none">Custom</span>
+      </div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-price-block">
+        <span class="modal-price-from">Từ</span>
+        <span class="modal-price-main" id="mPrice"></span>
+        <span class="modal-price-note" id="mPriceNote"></span>
+      </div>
+      <div class="modal-divider"></div>
+      <p class="modal-desc" id="mDesc"></p>
+      <div><div class="modal-specs" id="mSpecs"></div></div>
+      <div>
+        <div class="modal-colors-label">Màu da có sẵn</div>
+        <div class="modal-colors" id="mColors"></div>
+      </div>
+      <div class="modal-features">
+        <div class="feat-item"><div class="feat-icon"></div>Da thật 100%</div>
+        <div class="feat-item"><div class="feat-icon"></div>Khâu tay</div>
+        <div class="feat-item"><div class="feat-icon"></div>Bảo hành 12 tháng</div>
+        <div class="feat-item"><div class="feat-icon"></div>Giao toàn quốc</div>
+      </div>
+      <div class="modal-ctas">
+        <button class="modal-btn-order" onclick="handleOrder()">Đặt hàng ngay</button>
+        <button class="modal-btn-custom" id="mCustomBtn" onclick="handleCustom()">Yêu cầu cá nhân hoá</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  SANITY CONFIG — điền thông tin project của bạn vào đây
+// ══════════════════════════════════════════════════════════════
+const SANITY_PROJECT_ID = '660r9kf9'; 
+const SANITY_DATASET    = 'production';
+const SANITY_API_VER    = '2024-01-01';
+const URL = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${SANITY_DATASET}?query=`;
+
+let allProducts = [];
+
+async function initData() {
+  try {
+    const query = encodeURIComponent(`*[_type == "product"] {
+      _id, 
+      name, 
+      "slug": slug.current, 
+      price, 
+      description,
+      isNew,
+      "imageUrl": image.asset->url,
+      "images": images[].asset->url
+    }`);
+
+    const response = await fetch(URL + query);
+    const result = await response.json();
+    
+    allProducts = result.result;
+
+    console.log("Dữ liệu sản phẩm:", allProducts);
+    // Gọi hàm render giao diện của bạn
+    // renderProducts(allProducts);
+
+  } catch (error) {
+    console.error("Lỗi:", error);
+  }
+}
+
+initData();
+
+// ══════════════════════════════════════════════════════════════
+//  SVG ILLUSTRATIONS
+// ══════════════════════════════════════════════════════════════
+function getSVG(key, size) {
+  size = size || 160;
+  const svgs = {
+    wallet:  `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="15" y="30" width="100" height="100" rx="5" fill="none" stroke="rgba(201,168,76,.28)" stroke-width="1.5"/><rect x="15" y="30" width="100" height="42" rx="5" fill="rgba(201,168,76,.08)" stroke="rgba(201,168,76,.18)" stroke-width=".7"/><line x1="15" y1="72" x2="115" y2="72" stroke="rgba(201,168,76,.14)" stroke-width=".7"/><rect x="26" y="82" width="36" height="30" rx="3" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.12)" stroke-width=".7"/><rect x="70" y="82" width="38" height="13" rx="2" fill="rgba(201,168,76,.05)"/><rect x="70" y="100" width="28" height="9" rx="2" fill="rgba(201,168,76,.04)"/><line x1="22" y1="38" x2="22" y2="124" stroke="rgba(201,168,76,.12)" stroke-width=".6" stroke-dasharray="4 3"/><line x1="108" y1="38" x2="108" y2="124" stroke="rgba(201,168,76,.12)" stroke-width=".6" stroke-dasharray="4 3"/><text x="65" y="155" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9" fill="rgba(201,168,76,.2)" letter-spacing="3">BIFOLD</text></svg>`,
+    wallet2: `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="10" y="28" width="110" height="80" rx="5" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><path d="M10 68 L120 68" stroke="rgba(201,168,76,.14)" stroke-width=".7"/><rect x="18" y="36" width="94" height="26" rx="3" fill="rgba(201,168,76,.07)"/><circle cx="116" cy="66" r="6" fill="none" stroke="rgba(201,168,76,.22)" stroke-width=".9"/><rect x="18" y="74" width="28" height="20" rx="2" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.1)" stroke-width=".6"/><rect x="52" y="74" width="28" height="20" rx="2" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.08)" stroke-width=".6"/><rect x="86" y="74" width="28" height="20" rx="2" fill="rgba(201,168,76,.04)" stroke="rgba(201,168,76,.07)" stroke-width=".6"/><text x="65" y="130" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9" fill="rgba(201,168,76,.2)" letter-spacing="3">ZIP LONG</text></svg>`,
+    card:    `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="20" y="45" width="90" height="70" rx="5" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="20" y="45" width="90" height="28" rx="5" fill="rgba(201,168,76,.08)" stroke="rgba(201,168,76,.14)" stroke-width=".7"/><line x1="20" y1="73" x2="110" y2="73" stroke="rgba(201,168,76,.12)" stroke-width=".7"/><rect x="30" y="80" width="32" height="24" rx="2" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.1)" stroke-width=".6"/><rect x="70" y="80" width="28" height="11" rx="2" fill="rgba(201,168,76,.05)"/><rect x="70" y="95" width="20" height="8" rx="1" fill="rgba(201,168,76,.04)"/></svg>`,
+    tote:    `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><path d="M22 68 L15 145 L115 145 L108 68 Z" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><path d="M44 68 C44 44 86 44 86 68" fill="none" stroke="rgba(201,168,76,.22)" stroke-width="1.8"/><rect x="15" y="66" width="100" height="10" rx="2" fill="rgba(201,168,76,.08)" stroke="rgba(201,168,76,.14)" stroke-width=".7"/><rect x="46" y="96" width="38" height="24" rx="3" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.12)" stroke-width=".7"/><circle cx="65" cy="108" r="5" fill="none" stroke="rgba(201,168,76,.22)" stroke-width=".9"/></svg>`,
+    sling:   `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="28" y="42" width="74" height="100" rx="9" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><path d="M58 42 C58 26 94 22 98 42" fill="none" stroke="rgba(201,168,76,.2)" stroke-width="1.4"/><rect x="40" y="60" width="50" height="32" rx="3" fill="rgba(201,168,76,.07)" stroke="rgba(201,168,76,.12)" stroke-width=".7"/><rect x="46" y="102" width="38" height="22" rx="3" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.09)" stroke-width=".6"/><circle cx="65" cy="113" r="6" fill="none" stroke="rgba(201,168,76,.2)" stroke-width=".9"/></svg>`,
+    phone:   `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="26" y="15" width="78" height="140" rx="13" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="32" y="21" width="66" height="128" rx="9" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.09)" stroke-width=".6"/><rect x="40" y="30" width="50" height="84" rx="4" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.1)" stroke-width=".6"/><circle cx="65" cy="135" r="6" fill="none" stroke="rgba(201,168,76,.18)" stroke-width=".9"/><line x1="52" y1="25" x2="78" y2="25" stroke="rgba(201,168,76,.18)" stroke-width=".9" stroke-linecap="round"/></svg>`,
+    phone2:  `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="20" y="12" width="90" height="146" rx="15" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="26" y="18" width="78" height="134" rx="11" fill="rgba(201,168,76,.05)"/><rect x="36" y="30" width="58" height="92" rx="4" fill="rgba(201,168,76,.07)" stroke="rgba(201,168,76,.1)" stroke-width=".6"/><circle cx="65" cy="142" r="6" fill="none" stroke="rgba(201,168,76,.18)" stroke-width=".9"/></svg>`,
+    camera:  `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><circle cx="65" cy="75" r="44" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><circle cx="65" cy="75" r="32" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.14)" stroke-width=".9"/><circle cx="65" cy="75" r="20" fill="rgba(201,168,76,.08)" stroke="rgba(201,168,76,.18)" stroke-width=".9"/><circle cx="65" cy="75" r="8" fill="rgba(201,168,76,.14)"/><rect x="23" y="32" width="20" height="14" rx="3" fill="rgba(201,168,76,.09)" stroke="rgba(201,168,76,.14)" stroke-width=".6"/></svg>`,
+    strap:   `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="46" y="18" width="38" height="134" rx="9" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="52" y="24" width="26" height="122" rx="6" fill="rgba(201,168,76,.07)"/><line x1="46" y1="58" x2="84" y2="58" stroke="rgba(201,168,76,.14)" stroke-width=".9"/><line x1="46" y1="85" x2="84" y2="85" stroke="rgba(201,168,76,.14)" stroke-width=".9"/><line x1="46" y1="112" x2="84" y2="112" stroke="rgba(201,168,76,.14)" stroke-width=".9"/><rect x="52" y="57" width="26" height="29" rx="2" fill="rgba(201,168,76,.09)" stroke="rgba(201,168,76,.16)" stroke-width=".6"/></svg>`,
+    airpods: `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="28" y="22" width="74" height="96" rx="22" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="34" y="28" width="62" height="42" rx="16" fill="rgba(201,168,76,.07)" stroke="rgba(201,168,76,.12)" stroke-width=".7"/><circle cx="65" cy="84" r="14" fill="none" stroke="rgba(201,168,76,.18)" stroke-width=".9"/><circle cx="65" cy="84" r="6" fill="rgba(201,168,76,.12)"/></svg>`,
+    airmax:  `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><ellipse cx="65" cy="52" rx="52" ry="30" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="18" y="80" width="94" height="62" rx="9" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.12)" stroke-width=".9"/><line x1="18" y1="52" x2="18" y2="82" stroke="rgba(201,168,76,.18)" stroke-width="1.5"/><line x1="112" y1="52" x2="112" y2="82" stroke="rgba(201,168,76,.18)" stroke-width="1.5"/></svg>`,
+    belt:    `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="8" y="73" width="114" height="24" rx="4" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="8" y="77" width="114" height="16" rx="2" fill="rgba(201,168,76,.07)"/><rect x="10" y="76" width="24" height="18" rx="3" fill="rgba(201,168,76,.12)" stroke="rgba(201,168,76,.22)" stroke-width=".9"/><rect x="14" y="80" width="16" height="10" rx="1" fill="rgba(201,168,76,.06)"/><circle cx="50" cy="85" r="2.5" fill="rgba(201,168,76,.2)"/><circle cx="62" cy="85" r="2.5" fill="rgba(201,168,76,.18)"/><circle cx="74" cy="85" r="2.5" fill="rgba(201,168,76,.15)"/></svg>`,
+    watch:   `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="46" y="12" width="38" height="146" rx="7" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="52" y="18" width="26" height="134" rx="4" fill="rgba(201,168,76,.07)"/><circle cx="65" cy="85" r="20" fill="rgba(201,168,76,.07)" stroke="rgba(201,168,76,.2)" stroke-width=".9"/><circle cx="65" cy="85" r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.14)" stroke-width=".6"/><line x1="65" y1="76" x2="65" y2="85" stroke="rgba(201,168,76,.28)" stroke-width="1.2"/><line x1="65" y1="85" x2="72" y2="85" stroke="rgba(201,168,76,.22)" stroke-width=".9"/></svg>`,
+    key:     `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><circle cx="65" cy="50" r="26" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><circle cx="65" cy="50" r="13" fill="none" stroke="rgba(201,168,76,.18)" stroke-width=".9"/><rect x="56" y="72" width="18" height="66" rx="4" fill="none" stroke="rgba(201,168,76,.22)" stroke-width="1.2"/><rect x="56" y="94" width="18" height="9" rx="1" fill="rgba(201,168,76,.06)"/><rect x="64" y="108" width="12" height="8" rx="1" fill="rgba(201,168,76,.05)"/></svg>`,
+    passport:`<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="20" y="16" width="90" height="138" rx="7" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="26" y="22" width="78" height="126" rx="4" fill="rgba(201,168,76,.05)"/><circle cx="65" cy="65" r="24" fill="none" stroke="rgba(201,168,76,.18)" stroke-width=".9"/><circle cx="65" cy="65" r="15" fill="rgba(201,168,76,.07)" stroke="rgba(201,168,76,.12)" stroke-width=".6"/><rect x="34" y="102" width="62" height="5" rx="1" fill="rgba(201,168,76,.12)"/><rect x="34" y="113" width="48" height="5" rx="1" fill="rgba(201,168,76,.09)"/><rect x="34" y="124" width="54" height="5" rx="1" fill="rgba(201,168,76,.07)"/></svg>`,
+    laptop:  `<svg width="${size}" height="${size*1.3}" viewBox="0 0 130 170"><rect x="10" y="38" width="110" height="84" rx="6" fill="none" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/><rect x="16" y="44" width="98" height="72" rx="3" fill="rgba(201,168,76,.07)"/><rect x="4" y="120" width="122" height="11" rx="3" fill="rgba(201,168,76,.09)" stroke="rgba(201,168,76,.14)" stroke-width=".6"/><line x1="48" y1="131" x2="82" y2="131" stroke="rgba(201,168,76,.22)" stroke-width="1.4"/></svg>`,
+  };
+  return svgs[key] || svgs.wallet;
+}
+
+function getCatLabel(c) {
+  var m = {vi:'Ví da',tui:'Túi xách','op-lung':'Ốp lưng','op-camera':'Ốp camera',airpods:'Hộp AirPods','day-lung':'Dây lưng','phu-kien':'Phụ kiện'};
+  return m[c] || c;
+}
+function formatPrice(p) { return new Intl.NumberFormat('vi-VN').format(p) + ' ₫'; }
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER PRODUCTS - CẬP NHẬT CHO SANITY
+// ══════════════════════════════════════════════════════════════
+function renderProducts(products) {
+  var grid = document.getElementById('productGrid');
+  if (!grid) return;
+
+  // Xóa các card cũ
+  grid.querySelectorAll('.prod-card').forEach(function(c){ c.remove(); });
+  
+  var empty = document.getElementById('emptyState');
+  if (!products || !products.length) { 
+    if (empty) empty.style.display = 'block'; 
+    return; 
+  }
+  
+  if (empty) empty.style.display = 'none';
+
+  products.forEach(function(p) {
+    var card = document.createElement('div');
+    card.className = 'prod-card';
+    card.dataset.id = p._id;
+
+    // Kiểm tra an toàn cho các trường dữ liệu
+    var priceText = p.price ? formatPrice(p.price) : 'Liên hệ';
+    var shortDesc = p.description ? (p.description.substring(0, 60) + '...') : '';
+    
+    // Xử lý label danh mục: Nếu không có category thì ẩn đi hoặc hiện chữ "Handmade"
+    var catLabel = (typeof getCatLabel === 'function' && p.category) ? getCatLabel(p.category) : 'Sản phẩm';
+
+    card.innerHTML =
+      (p.isNew ? '<span class="badge-new">Mới</span>' : '') +
+      (p.isCustomizable ? '<span class="badge-custom">Custom</span>' : '') +
+      '<div class="prod-img">' +
+        (p.imageUrl 
+          ? '<img class="sanity-img" src="' + p.imageUrl + '" alt="' + p.name + '" onload="this.classList.add(\'loaded\')">' 
+          : getSVG('wallet', 130)) + // Mặc định hiện ví nếu thiếu ảnh
+        '<div class="prod-hover-overlay">' +
+          '<button class="quick-view-btn" onclick="openModal(\'' + p._id + '\');event.stopPropagation()">Xem chi tiết</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="prod-body" onclick="openModal(\'' + p._id + '\')">' +
+        '<div class="prod-cat-tag">' + catLabel + '</div>' + 
+        '<div class="prod-name">' + (p.name || 'Sản phẩm không tên') + '</div>' +
+        '<div class="prod-desc-short">' + shortDesc + '</div>' +
+        '<div class="prod-footer">' +
+          '<div class="prod-price">Từ ' + priceText + '</div>' +
+          '<button class="prod-wishlist" onclick="event.stopPropagation()" title="Yêu thích">♡</button>' +
+        '</div>' +
+      '</div>';
+      
+    grid.appendChild(card);
+  });
+}
+// ══════════════════════════════════════════════════════════════
+//  MODAL - CẬP NHẬT CHO SANITY (KHÔNG DANH MỤC)
+// ══════════════════════════════════════════════════════════════
+var currentProduct = null;
+
+function openModal(id) {
+  // Tìm sản phẩm trong mảng allProducts đã fetch từ Sanity
+  var p = allProducts.find(function(x){ return x._id === id; });
+  if (!p) return;
+  currentProduct = p;
+
+  // 1. Xử lý Ảnh
+  var imgEl = document.getElementById('modalImg');
+  var svgEl = document.getElementById('modalSvg');
+  if (p.imageUrl) {
+    imgEl.src = p.imageUrl; 
+    imgEl.style.display = 'block';
+    svgEl.innerHTML = '';
+  } else {
+    imgEl.style.display = 'none'; 
+    imgEl.src = '';
+    // Dự phòng nếu không có ảnh thì hiện SVG mặc định
+    svgEl.innerHTML = getSVG('wallet', 200); 
+  }
+
+  // 2. Xử lý Thumbnail (Nếu có mảng images, nếu không thì ẩn hoặc hiện 1 dot)
+  var thumbs = document.getElementById('modalThumbs');
+  if (p.images && p.images.length > 0) {
+    thumbs.innerHTML = p.images.map(function(url, i){
+      return '<div class="modal-thumb ' + (i===0?'active':'') + '" onclick="setThumb(' + i + ', this, \'' + url + '\')"><div class="modal-thumb-dot"></div></div>';
+    }).join('');
+  } else {
+    thumbs.innerHTML = ''; // Hoặc để 1 dot mặc định
+  }
+
+  // 3. Tiêu đề & Badge
+  // Tạm ẩn Label danh mục vì đã xóa phân loại
+  document.getElementById('mCat').style.display = 'none'; 
+  
+  document.getElementById('mBadgeNew').style.display = p.isNew ? '' : 'none';
+  document.getElementById('mBadgeCustom').style.display = p.isCustomizable ? '' : 'none';
+
+  // Chia đôi tiêu đề để làm hiệu ứng <em> như cũ
+  var words = (p.name || '').split(' ');
+  var half = Math.ceil(words.length / 2);
+  document.getElementById('mTitle').innerHTML = words.slice(0,half).join(' ') + '<br><em>' + words.slice(half).join(' ') + '</em>';
+
+  // 4. Giá & Mô tả
+  document.getElementById('mPrice').textContent = formatPrice(p.price);
+  document.getElementById('mPriceNote').textContent = ''; // Đã xóa biến priceNotes
+  document.getElementById('mDesc').textContent = p.description || '';
+
+  // 5. Thông số & Màu sắc (Xóa bỏ vì đã xóa danh mục)
+  document.getElementById('mSpecs').innerHTML = ''; 
+  document.getElementById('mColors').innerHTML = ''; 
+
+  // 6. Nút tùy chỉnh
+  document.getElementById('mCustomBtn').style.display = p.isCustomizable ? '' : 'none';
+
+  // Hiển thị Modal
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+// Hàm đổi ảnh khi nhấn Thumbnail
+function setThumb(i, el, url) {
+  document.querySelectorAll('.modal-thumb').forEach(function(t, j){ t.classList.toggle('active', j===i); });
+  if (url) {
+    document.getElementById('modalImg').src = url;
+  }
+}
+
+function closeModal() {
+  document.body.style.overflow = '';
+  document.getElementById('modalBackdrop').classList.remove('open');
+  setTimeout(function(){
+    document.getElementById('modalImg').src = '';
+    document.getElementById('modalSvg').innerHTML = '';
+  }, 350);
+}
+
+function handleBackdropClick(e) {
+  if (e.target === document.getElementById('modalBackdrop')) closeModal();
+}
+
+function handleOrder() {
+  var name = currentProduct ? currentProduct.name : 'sản phẩm';
+  closeModal();
+  // Chuyển hướng hoặc mở Zalo
+  window.open('https://zalo.me/s0777500265', '_blank');
+}
+
+function handleCustom() {
+  closeModal();
+  alert('Yêu cầu cá nhân hoá cho sản phẩm: ' + currentProduct.name + ' đã được ghi nhận.');
+}
+
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+// ══════════════════════════════════════════════════════════════
+//  HÀM HỖ TRỢ (NÊN ĐỂ TRÊN ĐẦU FILE JS)
+// ══════════════════════════════════════════════════════════════
+
+// Hàm chuyển đổi mã (slug) sang nhãn hiển thị tiếng Việt
+function getCatLabel(cat) {
+  const labels = {
+    'vi': 'Ví da',
+    'tui': 'Túi xách',
+    'op-lung': 'Ốp lưng',
+    'op-camera': 'Ốp camera',
+    'airpods': 'Hộp AirPods',
+    'day-lung': 'Dây lưng',
+    'phu-kien': 'Phụ kiện'
+  };
+  return labels[cat] || 'Sản phẩm';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  FILTER
+// ══════════════════════════════════════════════════════════════
+document.getElementById('filterBar').addEventListener('click', function(e) {
+  var btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+
+  // 1. Cập nhật trạng thái Active cho nút bấm
+  document.querySelectorAll('.filter-btn').forEach(function(b){ 
+    b.classList.remove('active'); 
+  });
+  btn.classList.add('active');
+
+  // 2. Lấy giá trị filter từ data-attribute
+  var filterValue = btn.dataset.filter;
+
+  // 3. Lọc sản phẩm
+  // Lưu ý: p.category phải khớp hoàn toàn với data-filter trong HTML
+  var filtered = (filterValue === 'all') 
+    ? allProducts 
+    : allProducts.filter(function(p){ 
+        return p.category === filterValue; 
+      });
+
+  // 4. Gọi hàm render để hiển thị danh sách đã lọc
+  renderProducts(filtered);
+});
+
+// ══════════════════════════════════════════════════════════════
+//  QUOTES
+// ══════════════════════════════════════════════════════════════
+var quotes = [
+  {text:'Chiếc ví tôi nhận không chỉ là sản phẩm — đó là tác phẩm. Đường khâu hoàn hảo, da thơm, càng dùng càng đẹp.',author:'Nguyễn Minh Khoa'},
+  {text:'Tôi đặt hộp AirPods có khắc tên. Khi nhận được, tôi không ngờ nó đẹp đến vậy.',author:'Trần Thị Lan Anh'},
+  {text:'Đã tặng chồng chiếc ví Bifold. Anh ấy nói đây là món quà ý nghĩa nhất.',author:'Phạm Thu Hương'},
+];
+var qi = 0;
+function setQuote(i) {
+  qi = i;
+  document.getElementById('quoteText').textContent = quotes[i].text;
+  document.getElementById('quoteAuthor').textContent = quotes[i].author;
+  document.querySelectorAll('.qdot').forEach(function(d, j){ d.classList.toggle('active', j===i); });
+}
+setInterval(function(){ setQuote((qi+1)%3); }, 5000);
+
+// ══════════════════════════════════════════════════════════════
+//  SANITY FETCH
+// ══════════════════════════════════════════════════════════════
+async function fetchFromSanity() {
+  if (SANITY_PROJECT_ID === 'YOUR_PROJECT_ID') {
+    document.getElementById('statusText').textContent = 'Đang hiển thị dữ liệu mẫu — chưa kết nối Sanity';
+    return;
+  }
+  document.getElementById('statusDot').className = 'status-dot loading';
+  document.getElementById('statusText').textContent = 'Đang kết nối Sanity...';
+  var query = encodeURIComponent('*[_type == "product"] | order(_createdAt desc) { _id, name, slug, category, price, isNew, isCustomizable, description, "imageUrl": image.asset->url }');
+  var url = 'https://' + SANITY_PROJECT_ID + '.api.sanity.io/v' + SANITY_API_VER + '/data/query/' + SANITY_DATASET + '?query=' + query;
+  try {
+    var res = await fetch(url);
+    var data = await res.json();
+    if (data.result && data.result.length) {
+      allProducts = data.result;
+      renderProducts(allProducts);
+      document.getElementById('statusDot').className = 'status-dot connected';
+      document.getElementById('statusText').textContent = 'Đã kết nối Sanity · ' + data.result.length + ' sản phẩm';
+    } else {
+      document.getElementById('statusDot').className = 'status-dot';
+      document.getElementById('statusText').textContent = 'Sanity trống — hiển thị dữ liệu mẫu';
+    }
+  } catch(e) {
+    document.getElementById('statusDot').className = 'status-dot error';
+    document.getElementById('statusText').textContent = 'Lỗi kết nối Sanity — hiển thị dữ liệu mẫu';
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderProducts(allProducts);
+fetchFromSanity();
+</script>
+</body>
+</html>
