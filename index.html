@@ -49,13 +49,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content
 .filter-btn:hover{border-color:rgba(201,168,76,.5);color:var(--cream2)}
 .filter-btn.active{border-color:var(--gold);background:rgba(201,168,76,.1);color:var(--gold)}
 
-/* STATUS */
-.sanity-status{max-width:1200px;margin:0 auto 2rem;display:flex;align-items:center;gap:.8rem;font-size:.7rem;letter-spacing:.1em;color:var(--text-muted)}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);flex-shrink:0}
-.status-dot.connected{background:#4caf7d}
-.status-dot.loading{background:var(--gold);animation:pulse 1s infinite}
-.status-dot.error{background:#e24b4a}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* PRODUCT GRID */
 .product-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(201,168,76,.06)}
@@ -195,7 +188,7 @@ footer{background:var(--dark);border-top:1px solid rgba(201,168,76,.08);padding:
     <li><a href="#">Trang chủ</a></li>
     <li><a href="#catalog">Sản phẩm</a></li>
     <li><a href="#process">Quy trình</a></li>
-    <li><a href="https://zalo.me/0777500265" target="_blank">Liên hệ qua Zalo</a></li>
+    <li><a href="https://zalo.me/0777500265" target="_blank">Liên hệ </a></li>
   </ul>
 </nav>
 
@@ -231,10 +224,7 @@ footer{background:var(--dark);border-top:1px solid rgba(201,168,76,.08);padding:
       <button class="filter-btn" data-filter="phu-kien">Phụ kiện</button>
     </div>
   </div>
-  <div class="sanity-status">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText">Đang hiển thị dữ liệu mẫu — chưa kết nối Sanity</span>
-  </div>
+ 
   <div class="product-grid" id="productGrid">
     <div class="empty-state" id="emptyState">Không có sản phẩm trong danh mục này.</div>
   </div>
@@ -331,6 +321,50 @@ footer{background:var(--dark);border-top:1px solid rgba(201,168,76,.08);padding:
 </div>
 
 <script>
+// 1. CHỈ KHAI BÁO MỘT LẦN DUY NHẤT
+// Khởi tạo với dữ liệu mẫu để Filter luôn chạy kể cả khi không có Sanity
+// Dữ liệu dự phòng khi Sanity lỗi (Ví dụ 8 sản phẩm cho 8 danh mục)
+let allProducts = [
+  { _id: 'm1', name: 'Ví Da Nam Basic', category: 'vi', price: 450000, isNew: true },
+  { _id: 'm2', name: 'Túi Tote Canvas Da', category: 'tui', price: 850000 },
+  { _id: 'm3', name: 'Ốp Lưng iPhone Da', category: 'op-lung', price: 350000 },
+  { _id: 'm4', name: 'Ốp Camera Vintage', category: 'op-camera', price: 250000 },
+  { _id: 'm5', name: 'Hộp Đựng AirPods Pro', category: 'airpods', price: 280000 },
+  { _id: 'm6', name: 'Dây Lưng Da Bò Ý', category: 'day-lung', price: 650000 },
+  { _id: 'm7', name: 'Dây Đồng Hồ 22mm', category: 'phu-kien', price: 350000 },
+  { _id: 'm8', name: 'Bìa Hộ Chiếu', category: 'phu-kien', price: 320000 }
+];
+
+// 2. Hàm lấy dữ liệu từ Sanity (Ghi đè lên allProducts nếu thành công)
+async function initData() {
+  // Xóa các dòng khai báo statusText, statusDot ở đây
+
+  try {
+    const URL = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}?query=`;
+    const query = encodeURIComponent(`*[_type == "product"] | order(_createdAt desc) {
+      _id, name, "slug": slug.current, category, price, 
+      description, isNew, isCustomizable, "imageUrl": image.asset->url
+    }`);
+
+    const response = await fetch(URL + query);
+    if (!response.ok) throw new Error("Network error");
+
+    const result = await response.json();
+    
+    if (result.result && result.result.length > 0) {
+      allProducts = result.result;
+      // Đã xóa console.log hiển thị số lượng sản phẩm để sạch console
+    }
+  } catch (error) {
+    // Chỉ giữ lại log lỗi nếu thực sự cần debug, không hiện lên giao diện
+    console.error("Sanity Error:", error.message);
+  } finally {
+    renderProducts(allProducts);
+  }
+}
+
+initData();
+
 // ══════════════════════════════════════════════════════════════
 //  SANITY CONFIG — điền thông tin project của bạn vào đây
 // ══════════════════════════════════════════════════════════════
@@ -339,36 +373,54 @@ const SANITY_DATASET    = 'production';
 const SANITY_API_VER    = '2024-01-01';
 const URL = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${SANITY_DATASET}?query=`;
 
-let allProducts = [];
+
 
 async function initData() {
-  try {
-    const query = encodeURIComponent(`*[_type == "product"] {
-      _id, 
-      name, 
-      "slug": slug.current, 
-      price, 
-      description,
-      isNew,
-      "imageUrl": image.asset->url,
-      "images": images[].asset->url
-    }`);
+  const statusText = document.getElementById('statusText');
+  const statusDot = document.getElementById('statusDot');
 
+  try {
     const response = await fetch(URL + query);
     const result = await response.json();
     
-    allProducts = result.result;
-
-    console.log("Dữ liệu sản phẩm:", allProducts);
-    // Gọi hàm render giao diện của bạn
-    // renderProducts(allProducts);
-
+    if (result.result && result.result.length > 0) {
+      allProducts = result.result; // Nếu có Sanity, ghi đè dữ liệu mẫu
+      if(statusText) statusText.innerText = "Đã kết nối Sanity";
+      if(statusDot) statusDot.style.background = "#2ecc71";
+    }
   } catch (error) {
-    console.error("Lỗi:", error);
+    console.warn("Không kết nối được Sanity, dùng dữ liệu mẫu.");
+    // allProducts vẫn đang giữ mockProducts từ bước 1
+    if(statusText) statusText.innerText = "Chế độ Offline (Dữ liệu mẫu)";
+    if(statusDot) statusDot.style.background = "#e74c3c";
+  } finally {
+    renderProducts(allProducts); // Luôn luôn render dù thành công hay thất bại
   }
 }
-
 initData();
+
+// Dữ liệu mẫu dùng khi không có Sanity
+const mockProducts = [
+  {
+    _id: 'mock1',
+    name: 'Ví Bifold Classic',
+    category: 'vi',
+    price: 450000,
+    description: 'Dữ liệu mẫu - Ví da bò thật',
+    imageUrl: 'link_anh_du_phong.jpg',
+    isNew: true
+  },
+  {
+    _id: 'mock2',
+    name: 'Túi Tote Thủ Công',
+    category: 'tui',
+    price: 1200000,
+    description: 'Dữ liệu mẫu - Túi xách da Ý',
+    imageUrl: 'link_anh_du_phong_2.jpg'
+  }
+];
+
+
 
 // ══════════════════════════════════════════════════════════════
 //  SVG ILLUSTRATIONS
@@ -462,69 +514,56 @@ function renderProducts(products) {
 var currentProduct = null;
 
 function openModal(id) {
-  // Tìm sản phẩm trong mảng allProducts đã fetch từ Sanity
   var p = allProducts.find(function(x){ return x._id === id; });
   if (!p) return;
   currentProduct = p;
 
-  // 1. Xử lý Ảnh
+  // 1. Ảnh chính ban đầu
   var imgEl = document.getElementById('modalImg');
-  var svgEl = document.getElementById('modalSvg');
-  if (p.imageUrl) {
-    imgEl.src = p.imageUrl; 
-    imgEl.style.display = 'block';
-    svgEl.innerHTML = '';
-  } else {
-    imgEl.style.display = 'none'; 
-    imgEl.src = '';
-    // Dự phòng nếu không có ảnh thì hiện SVG mặc định
-    svgEl.innerHTML = getSVG('wallet', 200); 
+  imgEl.src = p.imageUrl || '';
+  imgEl.style.display = p.imageUrl ? 'block' : 'none';
+
+  // 2. Tạo danh sách ảnh (Ảnh chính + Ảnh phụ)
+  var allImgUrls = [];
+  if (p.imageUrl) allImgUrls.push(p.imageUrl);
+  if (p.images && Array.isArray(p.images)) {
+    allImgUrls = allImgUrls.concat(p.images);
   }
 
-  // 2. Xử lý Thumbnail (Nếu có mảng images, nếu không thì ẩn hoặc hiện 1 dot)
+  // 3. Render các dấu chấm thumbnail
   var thumbs = document.getElementById('modalThumbs');
-  if (p.images && p.images.length > 0) {
-    thumbs.innerHTML = p.images.map(function(url, i){
-      return '<div class="modal-thumb ' + (i===0?'active':'') + '" onclick="setThumb(' + i + ', this, \'' + url + '\')"><div class="modal-thumb-dot"></div></div>';
+  if (allImgUrls.length > 1) {
+    thumbs.style.display = 'flex';
+    thumbs.innerHTML = allImgUrls.map(function(url, i) {
+      // Truyền trực tiếp URL ảnh vào hàm setThumb
+      return `<div class="modal-thumb ${i===0?'active':''}" onclick="setThumb(${i}, this, '${url}')">
+                <div class="modal-thumb-dot"></div>
+              </div>`;
     }).join('');
   } else {
-    thumbs.innerHTML = ''; // Hoặc để 1 dot mặc định
+    thumbs.style.display = 'none'; // Ẩn nếu chỉ có 1 ảnh
   }
 
-  // 3. Tiêu đề & Badge
-  // Tạm ẩn Label danh mục vì đã xóa phân loại
-  document.getElementById('mCat').style.display = 'none'; 
-  
-  document.getElementById('mBadgeNew').style.display = p.isNew ? '' : 'none';
-  document.getElementById('mBadgeCustom').style.display = p.isCustomizable ? '' : 'none';
-
-  // Chia đôi tiêu đề để làm hiệu ứng <em> như cũ
-  var words = (p.name || '').split(' ');
-  var half = Math.ceil(words.length / 2);
-  document.getElementById('mTitle').innerHTML = words.slice(0,half).join(' ') + '<br><em>' + words.slice(half).join(' ') + '</em>';
-
-  // 4. Giá & Mô tả
+  // --- Các phần thông tin khác giữ nguyên ---
+  document.getElementById('mTitle').innerText = p.name;
   document.getElementById('mPrice').textContent = formatPrice(p.price);
-  document.getElementById('mPriceNote').textContent = ''; // Đã xóa biến priceNotes
   document.getElementById('mDesc').textContent = p.description || '';
-
-  // 5. Thông số & Màu sắc (Xóa bỏ vì đã xóa danh mục)
-  document.getElementById('mSpecs').innerHTML = ''; 
-  document.getElementById('mColors').innerHTML = ''; 
-
-  // 6. Nút tùy chỉnh
-  document.getElementById('mCustomBtn').style.display = p.isCustomizable ? '' : 'none';
-
-  // Hiển thị Modal
-  document.body.style.overflow = 'hidden';
+  
   document.getElementById('modalBackdrop').classList.add('open');
 }
 
 // Hàm đổi ảnh khi nhấn Thumbnail
 function setThumb(i, el, url) {
-  document.querySelectorAll('.modal-thumb').forEach(function(t, j){ t.classList.toggle('active', j===i); });
-  if (url) {
-    document.getElementById('modalImg').src = url;
+  // Đổi trạng thái active của dấu chấm
+  document.querySelectorAll('.modal-thumb').forEach(function(t){ 
+    t.classList.remove('active'); 
+  });
+  if (el) el.classList.add('active');
+
+  // Thay đổi ảnh to trong Modal
+  var mainImg = document.getElementById('modalImg');
+  if (mainImg && url) {
+    mainImg.src = url;
   }
 }
 
@@ -546,6 +585,21 @@ function handleOrder() {
   closeModal();
   // Chuyển hướng hoặc mở Zalo
   window.open('https://zalo.me/s0777500265', '_blank');
+}
+function changeModalImage(url, thumbEl) {
+  // Thay đổi ảnh chính
+  var mainImg = document.getElementById('modalImg');
+  if (mainImg && url) {
+    mainImg.src = url;
+  }
+
+  // Cập nhật trạng thái active cho các dấu chấm
+  document.querySelectorAll('.modal-thumb').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  if (thumbEl) {
+    thumbEl.classList.add('active');
+  }
 }
 
 function handleCustom() {
@@ -580,24 +634,17 @@ document.getElementById('filterBar').addEventListener('click', function(e) {
   var btn = e.target.closest('.filter-btn');
   if (!btn) return;
 
-  // 1. Cập nhật trạng thái Active cho nút bấm
-  document.querySelectorAll('.filter-btn').forEach(function(b){ 
-    b.classList.remove('active'); 
-  });
+  // Cập nhật UI nút bấm
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
 
-  // 2. Lấy giá trị filter từ data-attribute
-  var filterValue = btn.dataset.filter;
+  var f = btn.dataset.filter; // 'all', 'vi', 'tui', ...
 
-  // 3. Lọc sản phẩm
-  // Lưu ý: p.category phải khớp hoàn toàn với data-filter trong HTML
-  var filtered = (filterValue === 'all') 
+  // QUAN TRỌNG: Lọc dựa trên mảng allProducts đang có
+  var filtered = (f === 'all') 
     ? allProducts 
-    : allProducts.filter(function(p){ 
-        return p.category === filterValue; 
-      });
+    : allProducts.filter(function(p) { return p.category === f; });
 
-  // 4. Gọi hàm render để hiển thị danh sách đã lọc
   renderProducts(filtered);
 });
 
@@ -622,29 +669,26 @@ setInterval(function(){ setQuote((qi+1)%3); }, 5000);
 //  SANITY FETCH
 // ══════════════════════════════════════════════════════════════
 async function fetchFromSanity() {
-  if (SANITY_PROJECT_ID === 'YOUR_PROJECT_ID') {
-    document.getElementById('statusText').textContent = 'Đang hiển thị dữ liệu mẫu — chưa kết nối Sanity';
+  if (SANITY_PROJECT_ID === 'YOUR_PROJECT_ID' || !SANITY_PROJECT_ID) {
+    renderProducts(allProducts);
     return;
   }
-  document.getElementById('statusDot').className = 'status-dot loading';
-  document.getElementById('statusText').textContent = 'Đang kết nối Sanity...';
-  var query = encodeURIComponent('*[_type == "product"] | order(_createdAt desc) { _id, name, slug, category, price, isNew, isCustomizable, description, "imageUrl": image.asset->url }');
+
+  // CẬP NHẬT QUERY: Thêm lấy danh sách ảnh phụ ở cuối
+  var query = encodeURIComponent('*[_type == "product"] | order(_createdAt desc) { _id, name, "slug": slug.current, category, price, isNew, isCustomizable, description, "imageUrl": image.asset->url, "images": images[].asset->url }');
+  
   var url = 'https://' + SANITY_PROJECT_ID + '.api.sanity.io/v' + SANITY_API_VER + '/data/query/' + SANITY_DATASET + '?query=' + query;
+
   try {
     var res = await fetch(url);
     var data = await res.json();
     if (data.result && data.result.length) {
       allProducts = data.result;
-      renderProducts(allProducts);
-      document.getElementById('statusDot').className = 'status-dot connected';
-      document.getElementById('statusText').textContent = 'Đã kết nối Sanity · ' + data.result.length + ' sản phẩm';
-    } else {
-      document.getElementById('statusDot').className = 'status-dot';
-      document.getElementById('statusText').textContent = 'Sanity trống — hiển thị dữ liệu mẫu';
     }
   } catch(e) {
-    document.getElementById('statusDot').className = 'status-dot error';
-    document.getElementById('statusText').textContent = 'Lỗi kết nối Sanity — hiển thị dữ liệu mẫu';
+    console.error("Lỗi kết nối:", e.message);
+  } finally {
+    renderProducts(allProducts);
   }
 }
 
